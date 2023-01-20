@@ -5,7 +5,7 @@ contract Conference{
     address private owner;
     uint256 public price;
     uint256 private userLimit;
-    uint256 private usersCurrent = 0;
+    uint256 private usersCount = 0;
     
     mapping (address => bool) public usersInConference;
 
@@ -25,9 +25,9 @@ contract Conference{
 
     function buyTicket() external payable{
         require(msg.value > price);
-        require(usersCurrent < userLimit);
+        require(usersCount < userLimit);
         usersInConference[msg.sender] = true;
-        usersCurrent += 1;
+        usersCount += 1;
     }
 
     function refund() external{
