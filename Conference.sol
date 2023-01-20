@@ -35,7 +35,7 @@ contract Conference{
         usersInConference[msg.sender] = false;
     }
 
-    function refund(address userToRefund) internal onlyOwner{
+    function refund(address userToRefund) private onlyOwner{
         require(usersInConference[msg.sender]);
         usersInConference[msg.sender] = false;
     }
