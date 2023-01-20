@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 error StakingFinished();
 
 contract Staker {
-    event Staking(address staker, uint256 amount);
+    event Pay(address payer, uint256 amount);
     event Withdraw(address withdrawer, uint256 amount);
 
     mapping(address => uint256) private balances;
@@ -24,6 +24,9 @@ contract Staker {
     bool public isFullAmountStaked = false;
     uint256 public amountStaked = 0;
     uint256 public amountGoal;
+
+    ExampleExternalContract private exampleExternalContract;
+
 
     modifier onlyOwner() {
         require(msg.sender == owner);
@@ -53,12 +56,16 @@ contract Staker {
         }
         balances[msg.sender] += msg.value;
         amountStaked += msg.value;
-        emit Staking(msg.sender, msg.value);
+        emit Pay(msg.sender, msg.value);
     }
 
     function complete() internal {
         stakingFinished = true;
         isFullAmountStaked = (amountStaked > amountGoal ? true : false);
+        if (isFullAmountStaked){
+            (bool success, ) = address(exampleExternalContract).call{value: amountStaked}("");
+            require(success);
+        }
     }
 
     function withdraw() public {
@@ -140,5 +147,16 @@ contract GoldTier is ERC721 {
 
     function getTokenQuan() public view returns (uint256) {
         return tokenQuan;
+    }
+}
+
+contract ExampleExternalContract {
+
+    receive() external payable {}
+
+    fallback() external payable {}
+
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
     }
 }
